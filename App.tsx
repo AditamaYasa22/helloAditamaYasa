@@ -1,118 +1,101 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
+interface Data {
+  id: number;
   title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+  price: number;
+  description: string;
+  category: string;
+  image: string;
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const App = () => {
+  const [datas, setData] = useState<Data[]>([])
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://fakestoreapi.com/products?limit=20')
+      setData(response.data)
+
+    } catch (erorr) {
+      console.log(erorr)
+    }
+  }
+
+  const postData = async () => {
+    try {
+      const newData = {
+        title: 'Le Mineral',
+        price: 10.5,
+        description: 'A Good Water',
+        image: 'https://i.pravatar.cc',
+        category: 'water',
+
+      };
+      const response = await axios.post(
+        'https://fakestoreapi.com/products',
+        newData,
+      );
+      console.log(response.data)
+      console.log(response.status)
+    } catch (erorr) {
+      console.log(erorr)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  console.log(datas);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    <ScrollView>
+      <View>
+        <Text>Hello World!</Text>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={postData}
+        >
+          <Text
+            style={{
+              color: 'white',
+              textAlign: 'center',
+              fontWeight: '500',
+              fontSize: 15,
+            }}
+          >
+            Post
+          </Text>
+        </TouchableOpacity>
+        {
+          datas.map((data, index) => (
+            <View key={index}>
+              <Text>{data.title}</Text>
+              <Text>{data.price}</Text>
+              <Text>{data.description}</Text>
+              <Text>{data.category}</Text>
+              <Image source={{ uri: data.image }} style={{ width: 100, height: 100 }}></Image>
+            </View>
+          ))
+        }
+      </View>
+    </ScrollView>
+  )
 }
+
+export default App
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+  button: {
+    backgroundColor: 'blue',
+    padding: 5,
+    borderRadius: 5,
+    width: 295,
+    height: 50,
+    justifyContent: 'center',
+  }
+})
